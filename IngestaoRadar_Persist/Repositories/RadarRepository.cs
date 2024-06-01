@@ -4,18 +4,18 @@ namespace Repositories
 {
     public class RadarRepository
     {
-        private SqlConnection _conn;
+        private MsSqlDatabase _db;
         public RadarRepository()
         {
-            _conn = new MsSqlDatabase().Connection;
-            _conn.Open();
+            _db = MsSqlDatabase.GetInstance();
+            _db.Connection.Open();
         }
         public bool Insert(Radar radar)
         {
             bool result = false;
             try
             {
-                SqlCommand cmd = new SqlCommand(radar.ToSQL(), _conn);
+                SqlCommand cmd = new SqlCommand(radar.ToSQL(), _db.Connection);
                 cmd.ExecuteNonQuery();
                 result = true;
             }
@@ -25,7 +25,7 @@ namespace Repositories
             }
             finally
             {
-                _conn.Close();
+                _db.Connection.Close();
             }
             return result;
         }

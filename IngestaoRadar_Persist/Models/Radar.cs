@@ -5,25 +5,6 @@ namespace Models
 {
     public class Radar
     {
-        /*
-         "radar": [
-               {
-                   "concessionaria": "AUTOPISTA FERNÃO DIAS",
-                   "ano_do_pnv_snv": "2007",
-                   "tipo_de_radar": "Controlador",
-                   "rodovia": "BR-381",
-                   "uf": "MG",
-                   "km_m": "483,700",
-                   "municipio": "Betim",
-                   "tipo_pista": "Principal",
-                   "sentido": "Crescente",
-                   "situacao": "Ativo",
-                   "data_da_inativacao": [],
-                   "latitude": "-19,959486",
-                   "longitude": "-44,085386",
-                   "velocidade_leve": "80"
-               },
-         */
         [JsonProperty("concessionaria")]
         private string _concessionaria { get; set; }
         [JsonProperty("ano_do_pnv_snv")]
@@ -45,7 +26,7 @@ namespace Models
         [JsonProperty("situacao")]
         private string _situacao { get; set; }
         [JsonProperty("data_da_inativacao")]
-        private DataInativacao _data_da_inativacao { get; set; }
+        private List<string> _data_da_inativacao { get; set; }
         [JsonProperty("latitude")]
         private string _latitude { get; set; }
         [JsonProperty("longitude")]
@@ -64,7 +45,7 @@ namespace Models
             string tipoPista, 
             string sentido, 
             string situacao, 
-            DataInativacao dataDaInativacao, 
+            List<string> dataDaInativacao, 
             string latitude, 
             string longitude, 
             int velocidadeLeve)
@@ -92,6 +73,9 @@ namespace Models
 
         public string ToSQL()
         {
+            string arrayData = "";
+            _data_da_inativacao.ForEach(s => arrayData += s + ",");
+
             return 
                 $"INSERT INTO RadarData VALUES (" +
                 $"'{_concessionaria}'," +
@@ -104,8 +88,7 @@ namespace Models
                 $"'{_tipo_pista}'," +
                 $"'{_sentido}'," +
                 $"'{_situacao}'," +
-                $"'{_data_da_inativacao.Data},'" +
-                $"''," +
+                $"'{arrayData}'," +
                 $"'{_latitude}'," +
                 $"'{_longitude}'," +
                 $"'{_velocidade_leve}'"+
@@ -124,7 +107,7 @@ namespace Models
                             {"municipio", this._municipio },
                             {"tipo_pista", this._tipo_pista },
                             {"sentido", this._sentido },
-                            {"data_da_inativacao", new BsonArray(this._data_da_inativacao.Data) },
+                            {"data_da_inativacao", new BsonArray(this._data_da_inativacao) },
                             {"latitude", this._latitude },
                             {"longitude", this._longitude },
                             {"velocidade_leve", this._velocidade_leve }

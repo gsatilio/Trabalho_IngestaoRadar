@@ -1,8 +1,5 @@
 ﻿using Services;
 using System.Net;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-
 namespace Controllers
 {
     public class RadarController
@@ -29,6 +26,6 @@ namespace Controllers
                 response = false;
             }
             return response;
-        } 
+        }
     }
 }
