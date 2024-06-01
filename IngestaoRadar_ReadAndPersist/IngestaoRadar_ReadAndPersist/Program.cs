@@ -1,68 +1,71 @@
 ﻿using Models;
 using MongoDB.Bson;
 using System.Data.SqlClient;
-Console.WriteLine("Read and Persist");
 
-var client = new MongoDatabase().Connection;
-var db = client.GetDatabase("Radar");
-var collection = db.GetCollection<BsonDocument>("Data");
-db.DropCollection("Data");
-
-var listDocument = new List<BsonDocument>();
-
-foreach (var item in GetSQLRecordsList())
+internal class Program
 {
-    var document = new BsonDocument{
-                            {"concessionaria", item.Concessionaria },
-                            {"ano_do_pnv_snv", item.Ano_do_pnv_snv },
-                            {"tipo_de_radar", item.Tipo_de_radar },
-                            {"rodovia", item.Rodovia },
-                            {"uf", item.Uf },
-                            {"km_m", item.Km_m },
-                            {"municipio", item.Municipio },
-                            {"tipo_pista", item.Tipo_pista },
-                            {"sentido", item.Sentido },
-                            //{"data_da_inativacao", item.Data_da_inativacao },
-                            {"latitude", item.Latitude },
-                            {"longitude", item.Longitude },
-                            {"velocidade_leve", item.Velocidade_leve }
-                };
-    listDocument.Add(document);
-}
-collection.InsertMany(listDocument);
-
-List<Radar> GetSQLRecordsList()
-{
-    List<Radar> lst = new List<Radar>();
-    var _connSQL = new MsSqlDatabase().Connection;
-    SqlCommand cmdSQL = new SqlCommand();
-    string[] auxArray = new string[1];
-
-    string aux = " SELECT [concessionaria], [ano_do_pnv_snv], [tipo_de_radar], [rodovia], [uf], " +
-                 "[km_m], [municipio], [tipo_pista], [sentido], [situacao], " +
-                 "[data_da_inativacao], [latitude], [longitude], [velocidade_leve] " +
-                 "FROM [dbRadar].[dbo].[RadarData] ";
-
-    _connSQL.Open();
-    cmdSQL.CommandText = aux;
-    cmdSQL.Connection = _connSQL;
-    try
+    private static void Main(string[] args)
     {
-        using (SqlDataReader dr = cmdSQL.ExecuteReader())
+
+        Console.WriteLine("Read and Persist");
+        InsertIntoMongo();
+    }
+
+    public static void InsertIntoMongo()
+    {
+        var client = MongoDatabase.GetInstance();
+        var db = client.Connection.GetDatabase("Radar");
+        var collection = db.GetCollection<BsonDocument>("Data");
+        db.DropCollection("Data");
+
+        var listDocument = new List<BsonDocument>();
+
+        foreach (var item in GetSQLRecordsList())
         {
-            while (dr.Read())
+            var document = new BsonDocument { item.GetBsonDocument() };
+            listDocument.Add(document);
+        }
+        collection.InsertMany(listDocument);
+    }
+    public static List<Radar> GetSQLRecordsList()
+    {
+        List<Radar> lst = new List<Radar>();
+        var _sql = MsSqlDatabase.GetInstance();
+        SqlCommand cmdSQL = new SqlCommand();
+
+        string aux = " SELECT [concessionaria], [ano_do_pnv_snv], [tipo_de_radar], [rodovia], [uf], " +
+                     "[km_m], [municipio], [tipo_pista], [sentido], [situacao], " +
+                     "[data_da_inativacao], [latitude], [longitude], [velocidade_leve] " +
+                     "FROM [dbRadar].[dbo].[RadarData] ";
+
+        _sql.Connection.Open();
+        cmdSQL.CommandText = aux;
+        cmdSQL.Connection = _sql.Connection;
+        try
+        {
+            using (SqlDataReader reader = cmdSQL.ExecuteReader())
             {
-                auxArray[0] = dr.GetString(10);
-                lst.Add(new Radar(dr.GetString(0), dr.GetInt32(1), dr.GetString(2), dr.GetString(3), dr.GetString(4),
-                                  dr.GetString(5), dr.GetString(6), dr.GetString(7), dr.GetString(8), dr.GetString(9),
-                                  auxArray, dr.GetString(11), dr.GetString(12), dr.GetInt32(13)));
+                while (reader.Read())
+                {
+                    List<string> dataInativacao = new List<string>();
+
+                    var temp = reader.GetString(10).Split(',');
+                    foreach (var item in temp)
+                        dataInativacao.Add(item);
+
+                    Radar obj = new Radar(reader.GetString(0), reader.GetInt32(1), reader.GetString(2), reader.GetString(3), reader.GetString(4),
+                                      reader.GetString(5), reader.GetString(6), reader.GetString(7), reader.GetString(8), reader.GetString(9),
+                                      dataInativacao, reader.GetString(11), reader.GetString(12), reader.GetInt32(13));
+
+                    lst.Add(obj);
+                }
             }
         }
+        catch (SqlException)
+        {
+            throw;
+        }
+        _sql.Connection.Close();
+        return lst;
     }
-    catch (SqlException)
-    {
-        throw;
-    }
-    _connSQL.Close();
-    return lst;
 }
