@@ -89,5 +89,27 @@ namespace Models
         { 
             return $"Coordenadas = {_latitude} : {_longitude}";
         }
+
+        public string ToSQL()
+        {
+            return 
+                $"INSERT INTO RadarData VALUES (" +
+                $"'{_concessionaria}'," +
+                $"'{_ano_do_pnv_snv}'," +
+                $"'{_tipo_de_radar}'," +
+                $"'{_rodovia}'," +
+                $"'{_uf}'," +
+                $"'{_km_m}'," +
+                $"'{_municipio}'," +
+                $"'{_tipo_pista}'," +
+                $"'{_sentido}'," +
+                $"'{_situacao}'," +
+                //$"'{_data_da_inativacao},'" +
+                $"''," +
+                $"'{_latitude}'," +
+                $"'{_longitude}'," +
+                $"'{velocidade_leve}'"+
+                $")";
+        }
     }
 }
