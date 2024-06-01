@@ -5,5 +5,6 @@ namespace Models
     {
         [JsonProperty("radar")]
         public List<Radar> Radar { get; set; }
+
     }
 }

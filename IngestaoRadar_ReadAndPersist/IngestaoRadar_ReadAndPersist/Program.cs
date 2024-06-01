@@ -19,7 +19,6 @@ internal class Program
         db.DropCollection("Data");
 
         var listDocument = new List<BsonDocument>();
-
         foreach (var item in GetSQLRecordsList())
         {
             var document = new BsonDocument { item.GetBsonDocument() };

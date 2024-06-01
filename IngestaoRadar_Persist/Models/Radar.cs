@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using Newtonsoft.Json;
+using System.Xml.Linq;
 
 namespace Models
 {
@@ -34,21 +35,26 @@ namespace Models
         [JsonProperty("velocidade_leve")]
         private int _velocidade_leve { get; set; }
 
+        public Radar()
+        {
+            
+        }
+
         public Radar(
-            string concessionaria, 
-            int anoDoPnvSnv, 
-            string tipoDeRadar, 
-            string rodovia, 
-            string uf, 
-            string kmM, 
-            string municipio, 
-            string tipoPista, 
-            string sentido, 
-            string situacao, 
-            List<string> dataDaInativacao, 
-            string latitude, 
-            string longitude, 
-            int velocidadeLeve)
+            string concessionaria,
+            int anoDoPnvSnv,
+            string tipoDeRadar,
+            string rodovia,
+            string uf,
+            string kmM,
+            string municipio,
+            string tipoPista,
+            string sentido,
+            string situacao,
+            List<string> dataDaInativacao,
+            string latitude,
+            string longitude,
+            int velocidadeLeve) 
         {
             _concessionaria = concessionaria;
             _ano_do_pnv_snv = anoDoPnvSnv;
@@ -66,8 +72,38 @@ namespace Models
             _velocidade_leve = velocidadeLeve;
         }
 
+
+        public Radar GenerateRadarByBson (BsonDocument bsonItem)
+        {
+            // aqui era um construtor normal mas deu conflito com o DeserializeObject do Persist -> RadarServices, fiz uma funcao pra gerar o objeto
+            Radar newRadar = new Radar ();
+            List<string> tempList = new List<string>();
+            var temp = bsonItem["data_da_inativacao"].AsBsonArray.Select(p => p.AsString);
+            foreach (var aux in temp)
+            {
+                if (aux != "")
+                    tempList.Add(aux);
+            }
+            newRadar._concessionaria = (string)bsonItem["concessionaria", null];
+            newRadar._ano_do_pnv_snv = (int)bsonItem["ano_do_pnv_snv", null];
+            newRadar._tipo_de_radar = (string)bsonItem["tipo_de_radar", null];
+            newRadar._rodovia = (string)bsonItem["rodovia", null];
+            newRadar._uf = (string)bsonItem["uf", null];
+            newRadar._km_m = (string)bsonItem["km_m", null];
+            newRadar._municipio = (string)bsonItem["municipio", null];
+            newRadar._tipo_pista = (string)bsonItem["tipo_pista", null];
+            newRadar._sentido = (string)bsonItem["sentido", null];
+            newRadar._situacao = (string)bsonItem["situacao", null];
+            newRadar._data_da_inativacao = tempList;
+            newRadar._latitude = (string)bsonItem["latitude", null];
+            newRadar._longitude = (string)bsonItem["longitude", null];
+            newRadar._velocidade_leve = (int)bsonItem["velocidade_leve", null];
+
+            return newRadar;
+        }
+
         public override string ToString()
-        { 
+        {
             return $"Coordenadas = {_latitude} : {_longitude}";
         }
 
@@ -76,7 +112,7 @@ namespace Models
             string arrayData = "";
             _data_da_inativacao.ForEach(s => arrayData += s + ",");
 
-            return 
+            return
                 $"INSERT INTO RadarData VALUES (" +
                 $"'{_concessionaria}'," +
                 $"'{_ano_do_pnv_snv}'," +
@@ -91,7 +127,7 @@ namespace Models
                 $"'{arrayData}'," +
                 $"'{_latitude}'," +
                 $"'{_longitude}'," +
-                $"'{_velocidade_leve}'"+
+                $"'{_velocidade_leve}'" +
                 $")";
         }
 
@@ -107,11 +143,42 @@ namespace Models
                             {"municipio", this._municipio },
                             {"tipo_pista", this._tipo_pista },
                             {"sentido", this._sentido },
+                            {"situacao", this._situacao },
                             {"data_da_inativacao", new BsonArray(this._data_da_inativacao) },
                             {"latitude", this._latitude },
                             {"longitude", this._longitude },
                             {"velocidade_leve", this._velocidade_leve }
                 };
+        }
+        public string? GetXMLDocument()
+        {
+            string arrayData = "";
+            _data_da_inativacao.ForEach(s => arrayData += s + ",");
+            var penaltieApplied =
+                    new XElement("radar",
+                    new XElement("concessionaria", this._concessionaria),
+                    new XElement("ano_do_pnv_snv", this._ano_do_pnv_snv),
+                    new XElement("tipo_de_radar", this._tipo_de_radar),
+                    new XElement("rodovia", this._rodovia),
+                    new XElement("uf", this._uf),
+                    new XElement("km_m", this._km_m),
+                    new XElement("municipio", this._municipio),
+                    new XElement("tipo_pista", this._tipo_pista),
+                    new XElement("sentido", this._sentido),
+                    new XElement("data_da_inativacao", arrayData),
+                    new XElement("latitude", this._latitude),
+                    new XElement("longitude", this._longitude),
+                    new XElement("velocidade_leve", this._velocidade_leve)
+                    );
+            return penaltieApplied.ToString();
+        }
+        public string? GetCSVDocument()
+        {
+            string arrayData = "";
+            _data_da_inativacao.ForEach(s => arrayData += s + ",");
+            string result = "";
+            result += $"{_concessionaria};{_ano_do_pnv_snv};{_tipo_de_radar};{_rodovia};{_uf};{_km_m};{_municipio};{_tipo_pista};{_sentido};{_situacao};{arrayData};{_latitude};{_longitude};{_velocidade_leve}";
+            return result;
         }
     }
 }
