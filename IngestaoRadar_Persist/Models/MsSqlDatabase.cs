@@ -8,8 +8,7 @@ namespace Models
         private readonly string _connectionString = "Data Source=127.0.0.1; Initial Catalog=dbRadar; User Id=SA; Password=SqlServer2019!;TrustServerCertificate=True";
         public SqlConnection Connection;
 
-        //private MsSqlDatabase()
-        public MsSqlDatabase()
+        private MsSqlDatabase()
         {
             Connection = new SqlConnection()
             {
