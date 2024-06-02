@@ -32,22 +32,22 @@ namespace Repositories
                         }
 
                         radars.Add(new Radar
-                        {
-                            Concessionaria = reader.GetString(0),
-                            AnoDoPnvSnv = reader.GetInt32(1),
-                            TipoDeRadar = reader.GetString(2),
-                            Rodovia = reader.GetString(3),
-                            Uf = reader.GetString(4),
-                            KmM = reader.GetString(5),
-                            Municipio = reader.GetString(6),
-                            TipoPista = reader.GetString(7),
-                            Sentido = reader.GetString(8),
-                            Situacao = reader.GetString(9),
-                            DataDaInativacao = dataInativacao,
-                            Latitude = reader.GetString(11),
-                            Longitude = reader.GetString(12),
-                            VelocidadeLeve = reader.GetInt32(13)
-                        }
+                            {
+                                Concessionaria = reader.GetString(0),
+                                AnoDoPnvSnv = reader.GetInt32(1),
+                                TipoDeRadar = reader.GetString(2),
+                                Rodovia = reader.GetString(3),
+                                Uf = reader.GetString(4),
+                                KmM = reader.GetString(5),
+                                Municipio = reader.GetString(6),
+                                TipoPista = reader.GetString(7),
+                                Sentido = reader.GetString(8),
+                                Situacao = reader.GetString(9),
+                                DataDaInativacao = dataInativacao,
+                                Latitude = reader.GetString(11),
+                                Longitude = reader.GetString(12),
+                                VelocidadeLeve = reader.GetInt32(13)
+                            }
                         );
                     }
                 }
@@ -62,7 +62,10 @@ namespace Repositories
                 Console.WriteLine("SYSTEM ERROR: " + ex);
                 throw;
             }
-            _sql.Connection.Close();
+            finally
+            {
+                _sql.Connection.Close();
+            }
             return radars;
         }
 
