@@ -1,124 +1,47 @@
-﻿using Models;
+﻿using Controllers;
+using Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
 using System.Xml.Linq;
+
 internal class Program
 {
     private static void Main(string[] args)
     {
-        Console.WriteLine("File Generator");
-        string path = "C:\\5by5\\Estagio\\Semana 7\\Trabalho_Radar\\";
-        WriteFilesFromMongo(path);
-        WriteFilesFromSQL(path);
-    }
+        Console.WriteLine("File Generator: ");
+        var path = @"C:\Radares\";
+        var controller = new FileGeneratorControllers();
+        
+        Console.WriteLine($"\nCaminho de destino: {path}\n");
 
-    public static void WriteFilesFromMongo(string path)
-    {
-        var client = MongoDatabase.GetInstance().Connection;
-        var db = client.GetDatabase("Radar");
-        var collection = db.GetCollection<BsonDocument>("Data");
-        var documentos = collection.AsQueryable();
+        bool result;
 
-        RadarList radarList = new RadarList();
-        radarList.Radar = new List<Radar>();
-        foreach (var item in documentos)
-        {
-            radarList.Radar.Add(new Radar().GenerateRadarByBson(item));
-        }
+        // SQL
+        Console.WriteLine("Gerando JSON com registros do SQL...");
+        result = controller.WriteJsonFromSql(path);
+        Console.WriteLine($"{(result ? "SQLFile.json gerado com sucesso!" : "Erro ao gerar arquivo JSON")}\n");
 
-        // Escreve os arquivos de origem Mongo
-        WriteToJSON(radarList, path, "MongoFile");
-        WriteToXML(radarList, path, "MongoFile");
-        WriteToCSV(radarList, path, "MongoFile");
-        Console.WriteLine("Escrita do Mongo realizada com sucesso!");
-    }
+        Console.WriteLine("Gerando XML com registros do SQL...");
+        result = controller.WriteXmlFromSql(path);
+        Console.WriteLine($"{(result ? "SQLFile.xml gerado com sucesso!" : "Erro ao gerar arquivo XML")}\n");
 
-    public static void WriteFilesFromSQL(string path)
-    {
-        List<Radar> lst = new List<Radar>();
-        RadarList radarList = new RadarList();
-        var _sql = MsSqlDatabase.GetInstance();
-        SqlCommand cmdSQL = new SqlCommand();
+        Console.WriteLine("Gerando CSV com registros do SQL...");
+        result = controller.WriteCsvFromSql(path);
+        Console.WriteLine($"{(result ? "SQLFile.csv gerado com sucesso!" : "Erro ao gerar arquivo CSV")}\n");
 
-        string aux = " SELECT [concessionaria], [ano_do_pnv_snv], [tipo_de_radar], [rodovia], [uf], " +
-                     "[km_m], [municipio], [tipo_pista], [sentido], [situacao], " +
-                     "[data_da_inativacao], [latitude], [longitude], [velocidade_leve] " +
-                     "FROM [dbRadar].[dbo].[RadarData] ";
+        // MongoDB
+        Console.WriteLine("Gerando JSON com registros do MongoDB...");
+        result = controller.WriteJsonFromMongo(path);
+        Console.WriteLine($"{(result ? "MongoFile.json gerado com sucesso!" : "Erro ao gerar arquivo JSON")}\n");
 
-        _sql.Connection.Open();
-        cmdSQL.CommandText = aux;
-        cmdSQL.Connection = _sql.Connection;
-        try
-        {
-            using (SqlDataReader reader = cmdSQL.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    List<string> dataInativacao = new List<string>();
+        Console.WriteLine("Gerando XML com registros do MongoDB...");
+        result = controller.WriteXmlFromMongo(path);
+        Console.WriteLine($"{(result ? "MongoFile.xml gerado com sucesso!" : "Erro ao gerar arquivo XML")}\n");
 
-                    var temp = reader.GetString(10).Split(',');
-                    foreach (var item in temp)
-                    {
-                        if (item != "")
-                            dataInativacao.Add(item);
-                    }
-
-                    Radar obj = new Radar(reader.GetString(0), reader.GetInt32(1), reader.GetString(2), reader.GetString(3), reader.GetString(4),
-                                      reader.GetString(5), reader.GetString(6), reader.GetString(7), reader.GetString(8), reader.GetString(9),
-                                      dataInativacao, reader.GetString(11), reader.GetString(12), reader.GetInt32(13));
-
-                    lst.Add(obj);
-                }
-            }
-        }
-        catch (SqlException)
-        {
-            throw;
-        }
-        finally
-        {
-            _sql.Connection.Close();
-            radarList.Radar = lst;
-        }
-
-        // Escreve os arquivos de origem SQL
-        WriteToJSON(radarList, path, "SQLFile");
-        WriteToXML(radarList, path, "SQLFile");
-        WriteToCSV(radarList, path, "SQLFile");
-        Console.WriteLine("Escrita do SQL realizada com sucesso!");
-    }
-
-    public static void WriteToJSON(RadarList radarList, string path, string file)
-    {
-        string fileName = $"{path}{file}.json";
-        File.WriteAllText(fileName, string.Empty);
-        var document = JsonConvert.SerializeObject(radarList, Formatting.Indented);
-        File.AppendAllLines(fileName, new[] { document });
-    }
-    public static void WriteToXML(RadarList radarList, string path, string file)
-    {
-        string fileName = $"{path}{file}.xml";
-        File.WriteAllText(fileName, string.Empty);
-        string result = "<Root>\n";
-
-        foreach (var item in radarList.Radar)
-        {
-            result += item.GetXMLDocument() + "\n";
-        }
-        result += "</Root>";
-        File.AppendAllLines(fileName, new[] { result });
-    }
-    public static void WriteToCSV(RadarList radarList, string path, string file)
-    {
-        string fileName = $"{path}{file}.csv";
-        File.WriteAllText(fileName, string.Empty);
-        string result = "concessionaria;ano_do_pnv_snv;tipo_de_radar;rodovia;uf;km_m;municipio;tipo_pista;sentido;situacao;data_da_inativacao;latitude;longitude;velocidade_leve\n";
-        foreach (var item in radarList.Radar)
-        {
-            result += item.GetCSVDocument() + "\n";
-        }
-        File.AppendAllLines(fileName, new[] { result });
+        Console.WriteLine("Gerando CSV com registros do MongoDB...");
+        result = controller.WriteCsvFromMongo(path);
+        Console.WriteLine($"{(result ? "MongoFile.csv gerado com sucesso!" : "Erro ao gerar arquivo CSV")}\n");
     }
 }
