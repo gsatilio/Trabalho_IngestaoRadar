@@ -35,7 +35,7 @@ namespace Models
         [JsonProperty("velocidade_leve")]
         public int VelocidadeLeve { get; set; }
         public static readonly string InsertSql = "INSERT INTO RadarData VALUES (@Concessionaria, @AnoDoPnvSnv, @TipoDeRadar, @Rodovia, @Uf, " +
-                                           "@KmM, @Municipio, @TipoPista, @Sentido, @Situacao, @arrayData, @Latitude, @Longitude, @VelocidadeLev)";
+                                           "@KmM, @Municipio, @TipoPista, @Sentido, @Situacao, @DataInativacao, @Latitude, @Longitude, @VelocidadeLeve)";
         public static readonly string SelectSql = " SELECT [concessionaria], [ano_do_pnv_snv], [tipo_de_radar], [rodovia], [uf], [km_m], [municipio], [tipo_pista], " +
                                            "[sentido], [situacao], [data_da_inativacao], [latitude], [longitude], [velocidade_leve] " +
                                            "FROM [dbRadar].[dbo].[RadarData] ";
