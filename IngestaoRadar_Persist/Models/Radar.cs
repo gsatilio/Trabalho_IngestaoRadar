@@ -95,9 +95,9 @@ namespace Models
 
         public string? GetXMLDocument()
         {
-            string arrayData = "";
+            var arrayData = "";
             DataDaInativacao.ForEach(s => arrayData += s + ",");
-            var penaltieApplied =
+            var xml =
                     new XElement("radar",
                     new XElement("concessionaria", Concessionaria),
                     new XElement("ano_do_pnv_snv", AnoDoPnvSnv),
@@ -113,21 +113,29 @@ namespace Models
                     new XElement("longitude", Longitude),
                     new XElement("velocidade_leve", VelocidadeLeve)
                     );
-            return penaltieApplied.ToString();
+            return xml.ToString();
         }
 
-        public string? GetCSVDocument()
+        public string? GetCSVData()
         {
-            string arrayData = "";
+            var arrayData = "";
             DataDaInativacao.ForEach(s => arrayData += s + ",");
             string result = "";
-            result += $"{Concessionaria};{AnoDoPnvSnv};{TipoDeRadar};{Rodovia};{Uf};{KmM};{Municipio};{TipoPista};{Sentido};{Situacao};{arrayData};{Latitude};{Longitude};{VelocidadeLeve}";
+            result += $"{Concessionaria.Replace(',', '.')}," +
+                      $"{AnoDoPnvSnv}," +
+                      $"{TipoDeRadar.Replace(',', '.')}," +
+                      $"{Rodovia.Replace(',', '.')}," +
+                      $"{Uf.Replace(',', '.')}," +
+                      $"{KmM.Replace(',', '.')}," +
+                      $"{Municipio.Replace(',', '.')}," +
+                      $"{TipoPista.Replace(',', '.')}," +
+                      $"{Sentido.Replace(',', '.')}," +
+                      $"{Situacao.Replace(',', '.')}," +
+                      $"{arrayData.Replace(',', '.')}," +
+                      $"{Latitude.Replace(',', '.')}," +
+                      $"{Longitude.Replace(',', '.')}," +
+                      $"{VelocidadeLeve}";
             return result;
-        }
-
-        public Radar GenerateRadarByBson(BsonDocument item)
-        {
-            throw new NotImplementedException();
         }
     }
 }
