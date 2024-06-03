@@ -6,7 +6,7 @@ using MongoDB.Driver;
 
 namespace Repositories
 {
-    public class FileGeneratorRepositories
+    public class FileGeneratorRepositories : IFileGeneratorRepositories
     {
         private readonly MongoDatabase _mongo = MongoDatabase.GetInstance();
         private readonly MsSqlDatabase _sql = MsSqlDatabase.GetInstance();

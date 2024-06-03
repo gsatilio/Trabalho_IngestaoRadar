@@ -4,6 +4,7 @@ namespace Models
 {
     public sealed class MsSqlDatabase
     {
+        // Classe criada seguindo os padrões do Singleton Pattern.
         private static MsSqlDatabase _instance;
         private readonly string _connectionString = "Data Source=127.0.0.1; Initial Catalog=dbRadar; User Id=SA; Password=SqlServer2019!;TrustServerCertificate=True";
         public SqlConnection Connection;

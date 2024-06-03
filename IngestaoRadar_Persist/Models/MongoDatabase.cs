@@ -2,6 +2,7 @@
 
 namespace Models
 {
+    // Classe criada seguindo os padrões do Singleton Pattern.
     public sealed class MongoDatabase
     {
         private readonly string _connectionString = "mongodb://root:Mongo%402024%23@localhost:27017/";
