@@ -90,17 +90,18 @@ namespace Services
                 var fileName = $"{path}{file}.csv";
 
                 // Conversão
-                var header = "concessionaria,ano_do_pnv_snv,tipo_de_radar,rodovia,uf,km_m,municipio,tipo_pista,sentido,situacao,data_da_inativacao,latitude,longitude,velocidade_leve\n";
-                var content = header;
-                foreach (var radar in radarList.Radar)
-                {
-                    content += radar.GetCSVData() + "\n";
-                }
+                var header = "concessionaria;ano_do_pnv_snv;tipo_de_radar;rodovia;uf;km_m;municipio;tipo_pista;sentido;situacao;data_da_inativacao;latitude;longitude;velocidade_leve";
 
                 // Escrita
-                File.WriteAllText(fileName, string.Empty);
-                File.AppendAllLines(fileName, new[] { content });
-                
+                using (var writer = new StreamWriter(fileName))
+                {
+                    writer.WriteLine(header);
+                    foreach (var radar in radarList.Radar)
+                    {
+                        writer.WriteLine(radar.GetCSVData());
+                    }
+                    writer.Close();
+                }
                 result = true;
             }
             catch (Exception)
