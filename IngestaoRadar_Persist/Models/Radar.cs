@@ -34,11 +34,12 @@ namespace Models
         public string Longitude { get; set; }
         [JsonProperty("velocidade_leve")]
         public int VelocidadeLeve { get; set; }
-        public static readonly string InsertSql = "INSERT INTO RadarData VALUES (@Concessionaria, @AnoDoPnvSnv, @TipoDeRadar, @Rodovia, @Uf, " +
-                                           "@KmM, @Municipio, @TipoPista, @Sentido, @Situacao, @DataInativacao, @Latitude, @Longitude, @VelocidadeLeve)";
+        public static readonly string InsertSql = " INSERT INTO RadarData VALUES (@Concessionaria, @AnoDoPnvSnv, @TipoDeRadar, @Rodovia, @Uf, " +
+                                           "@KmM, @Municipio, @TipoPista, @Sentido, @Situacao, @DataInativacao, @Latitude, @Longitude, @VelocidadeLeve) ";
         public static readonly string SelectSql = " SELECT [concessionaria], [ano_do_pnv_snv], [tipo_de_radar], [rodovia], [uf], [km_m], [municipio], [tipo_pista], " +
                                            "[sentido], [situacao], [data_da_inativacao], [latitude], [longitude], [velocidade_leve] " +
                                            "FROM [dbRadar].[dbo].[RadarData] ";
+        public static readonly string DeleteSql = " DELETE FROM RadarData ";
 
         public override string ToString()
         {
@@ -93,12 +94,11 @@ namespace Models
                 };
         }
 
-        public string? GetXMLDocument()
+        public XElement? GetXMLDocument()
         {
-            var arrayData = "";
+            var arrayData = string.Empty;
             DataDaInativacao.ForEach(s => arrayData += s + ",");
-            var xml =
-                    new XElement("radar",
+            return new XElement("radar",
                     new XElement("concessionaria", Concessionaria),
                     new XElement("ano_do_pnv_snv", AnoDoPnvSnv),
                     new XElement("tipo_de_radar", TipoDeRadar),
@@ -112,15 +112,14 @@ namespace Models
                     new XElement("latitude", Latitude),
                     new XElement("longitude", Longitude),
                     new XElement("velocidade_leve", VelocidadeLeve)
-                    );
-            return xml.ToString();
+            );
         }
 
         public string? GetCSVData()
         {
-            var arrayData = "";
+            var arrayData = string.Empty;
             DataDaInativacao.ForEach(s => arrayData += s + ",");
-            string result = "";
+            var result = string.Empty;
             result += $"{Concessionaria.Replace(',', '.')}," +
                       $"{AnoDoPnvSnv}," +
                       $"{TipoDeRadar.Replace(',', '.')}," +

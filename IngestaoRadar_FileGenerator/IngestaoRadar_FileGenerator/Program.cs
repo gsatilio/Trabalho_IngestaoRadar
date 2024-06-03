@@ -17,6 +17,7 @@ internal class Program
         Console.WriteLine($"\nCaminho de destino: {path}\n");
 
         bool result;
+        var watch = System.Diagnostics.Stopwatch.StartNew();
 
         // SQL
         Console.WriteLine("Gerando JSON com registros do SQL...");
@@ -43,5 +44,8 @@ internal class Program
         Console.WriteLine("Gerando CSV com registros do MongoDB...");
         result = controller.WriteCsvFromMongo(path);
         Console.WriteLine($"{(result ? "MongoFile.csv gerado com sucesso!" : "Erro ao gerar arquivo CSV")}\n");
+
+        watch.Stop();
+        Console.WriteLine($"Escrita dos arquivos finalizada em: {watch.ElapsedMilliseconds} ms.");
     }
 }

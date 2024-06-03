@@ -1,4 +1,5 @@
-﻿using Models;
+﻿using System.Xml.Linq;
+using Models;
 using Newtonsoft.Json;
 using Repositories;
 
@@ -6,7 +7,8 @@ namespace Services
 {
     public class FileGeneratorServices
     {
-        private readonly FileGeneratorRepositories _repositories = new();
+        private readonly IFileGeneratorRepositories _repositories = new CacheRepositoriesProxy(new FileGeneratorRepositories());
+        //private readonly FileGeneratorRepositories _repositories = new();
 
         public List<Radar> GetRadarListFromMongo()
         {
@@ -47,7 +49,6 @@ namespace Services
         public bool WriteToXmlFile(List<Radar> radars, string path, string file)
         {
             var result = false;
-
             try
             {
                 var radarList = new RadarList
@@ -57,16 +58,17 @@ namespace Services
                 var fileName = $"{path}{file}.xml";
 
                 // Conversão
-                var content = "<Root>\n";
+                //var content = string.Empty;
+                var xml = new XElement("Root");
                 foreach (var radar in radarList.Radar)
                 {
-                    content += radar.GetXMLDocument() + "\n";
+                    //content += radar.GetXMLDocument();
+                    xml.Add(radar.GetXMLDocument());
                 }
-                content += "</Root>";
 
                 // Escrita
                 File.WriteAllText(fileName, string.Empty);
-                File.AppendAllLines(fileName, new[] { content });
+                File.AppendAllLines(fileName, new[] { xml.ToString() });
                 result = true;
             }
             catch (Exception)
