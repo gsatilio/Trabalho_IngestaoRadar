@@ -53,7 +53,7 @@ namespace Controllers
             return response;
         }
 
-        public bool SaveRadarDataFromFileMT(string path)
+        public async Task<bool> SaveRadarDataFromFileMT(string path)
         {
             var response = false;
             try
@@ -63,7 +63,7 @@ namespace Controllers
                 // Tenta converter o arquivo Json para objeto a fim de verificar sua validade
                 JToken.Parse(json);
 
-                _services.InsertFileOnSqlMT(json);
+                await _services.InsertFileOnSqlMT(json);
                 response = true;
             }
             catch (JsonReaderException jsonReaderException)

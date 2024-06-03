@@ -36,8 +36,8 @@ namespace Models
         public int VelocidadeLeve { get; set; }
         public static readonly string InsertSql = " INSERT INTO RadarData VALUES (@Concessionaria, @AnoDoPnvSnv, @TipoDeRadar, @Rodovia, @Uf, " +
                                            "@KmM, @Municipio, @TipoPista, @Sentido, @Situacao, @DataInativacao, @Latitude, @Longitude, @VelocidadeLeve) ";
-        public static readonly string SelectSql = " SELECT [concessionaria], [ano_do_pnv_snv], [tipo_de_radar], [rodovia], [uf], [km_m], [municipio], [tipo_pista], " +
-                                           "[sentido], [situacao], [data_da_inativacao], [latitude], [longitude], [velocidade_leve] " +
+        public static readonly string SelectSql = " SELECT [concessionaria], [ano_do_pnv_snv], [tipo_de_radar], [rodovia], [uf], REPLACE([km_m], ',', '.'), [municipio], [tipo_pista], " +
+                                           "[sentido], [situacao], [data_da_inativacao], REPLACE([latitude], ',', '.'), REPLACE([longitude], ',', '.'), [velocidade_leve] " +
                                            "FROM [dbRadar].[dbo].[RadarData] ";
         public static readonly string DeleteSql = " DELETE FROM RadarData ";
 
@@ -120,19 +120,19 @@ namespace Models
             var arrayData = string.Empty;
             DataDaInativacao.ForEach(s => arrayData += s + ",");
             var result = string.Empty;
-            result += $"{Concessionaria.Replace(',', '.')}," +
-                      $"{AnoDoPnvSnv}," +
-                      $"{TipoDeRadar.Replace(',', '.')}," +
-                      $"{Rodovia.Replace(',', '.')}," +
-                      $"{Uf.Replace(',', '.')}," +
-                      $"{KmM.Replace(',', '.')}," +
-                      $"{Municipio.Replace(',', '.')}," +
-                      $"{TipoPista.Replace(',', '.')}," +
-                      $"{Sentido.Replace(',', '.')}," +
-                      $"{Situacao.Replace(',', '.')}," +
-                      $"{arrayData.Replace(',', '.')}," +
-                      $"{Latitude.Replace(',', '.')}," +
-                      $"{Longitude.Replace(',', '.')}," +
+            result += $"{Concessionaria};" +
+                      $"{AnoDoPnvSnv};" +
+                      $"{TipoDeRadar};" +
+                      $"{Rodovia};" +
+                      $"{Uf};" +
+                      $"{KmM};" +
+                      $"{Municipio};" +
+                      $"{TipoPista};" +
+                      $"{Sentido};" +
+                      $"{Situacao};" +
+                      $"{arrayData};" +
+                      $"{Latitude};" +
+                      $"{Longitude};" +
                       $"{VelocidadeLeve}";
             return result;
         }

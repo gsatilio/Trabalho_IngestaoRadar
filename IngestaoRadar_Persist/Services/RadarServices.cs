@@ -39,13 +39,13 @@ namespace Services
             }
         }
 
-        public bool InsertFileOnSqlMT(string jsonString)
+        public async Task<bool> InsertFileOnSqlMT(string jsonString)
         {
             try
             {
                 var json = JsonConvert.DeserializeObject<RadarList>(jsonString);
                 _radarRepository.Delete();
-                _radarRepository.InsertAsync(json.Radar);
+                await _radarRepository.InsertAsync(json.Radar);
                 return true;
             }
             catch (Exception e)
