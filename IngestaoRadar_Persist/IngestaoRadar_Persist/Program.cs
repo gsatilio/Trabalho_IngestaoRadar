@@ -24,7 +24,7 @@ internal class Program
             Console.WriteLine("Selecione uma opção:");
             Console.WriteLine("[ 1 ] Carregar arquivo via API");
             Console.WriteLine("[ 2 ] Carregar arquivo local");
-            //Console.WriteLine("[ 3 ] Carregar arquivo local Multi Thread");
+            Console.WriteLine("[ 3 ] Carregar arquivo local Multi Thread");
             Console.WriteLine("[ 0 ] Sair");
             option = int.Parse(Console.ReadLine());
 
@@ -34,23 +34,24 @@ internal class Program
                     watch.Start();
                     var apiResponse = controller.SaveRadarDataFromApi(url);
                     watch.Stop();
-                    Console.WriteLine($"{(apiResponse ? "Operação realizada com sucesso!" + watch.ElapsedMilliseconds + "ms" : "Erro no processamento...")}");
+                    Console.WriteLine($"{(apiResponse ? "Operação realizada com sucesso! " + watch.ElapsedMilliseconds + "ms" : "Erro no processamento...")}");
                     watch.Reset();
                     break;
                 case 2:
                     watch.Start();
                     var fileResponse = controller.SaveRadarDataFromFile(path);
                     watch.Stop();
-                    Console.WriteLine($"{(fileResponse ? "Operação realizada com sucesso!" + watch.ElapsedMilliseconds + "ms" : "Erro no processamento...")}");
+                    Console.WriteLine($"{(fileResponse ? "Operação realizada com sucesso! " + watch.ElapsedMilliseconds + "ms" : "Erro no processamento...")}");
                     watch.Reset();
                     break;
-                //case 3:
-                //    watch.Start();
-                //    var fileResponseMT = controller.SaveRadarDataFromFileMT(path);
-                //    watch.Stop();
-                //    Console.WriteLine($"{(fileResponseMT ? "Operação realizada com sucesso!" + watch.ElapsedMilliseconds + "ms" : "Erro no processamento...")}");
-                //    watch.Reset();
-                //    break;
+                case 3:
+                    watch.Start();
+                    Chamaaa(controller, path);
+                    watch.Stop();
+                    //Console.WriteLine($"{(fileResponseMT ? "Operação realizada com sucesso! " + watch.ElapsedMilliseconds + "ms" : "Erro no processamento...")}");
+                    Console.WriteLine($"Operação realizada com sucesso! {watch.ElapsedMilliseconds}ms");
+                    watch.Reset();
+                    break;
                 case 0:
                     Console.WriteLine("Saindo...");
                     break;
@@ -60,5 +61,10 @@ internal class Program
             }
             Console.ReadKey();
         } while (option > 0);
+
+        static async Task<bool> Chamaaa(RadarController controller, string path)
+        {
+            return await controller.SaveRadarDataFromFileMT(path);
+        }
     }
 }

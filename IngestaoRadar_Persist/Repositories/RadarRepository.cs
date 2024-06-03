@@ -23,8 +23,11 @@ namespace Repositories
                     CommandText = Radar.InsertSql
                 };
 
-                var datesCsv = "";
-                radar.DataDaInativacao.ForEach(s => datesCsv += s + ",");
+                var datesCsv = string.Empty;
+                if (radar.DataDaInativacao.Count > 0)
+                {
+                    radar.DataDaInativacao.ForEach(s => datesCsv += s + ",");
+                }
                 cmd.Parameters.Add(new SqlParameter("@Concessionaria", radar.Concessionaria));
                 cmd.Parameters.Add(new SqlParameter("@AnoDoPnvSnv", radar.AnoDoPnvSnv));
                 cmd.Parameters.Add(new SqlParameter("@TipoDeRadar", radar.TipoDeRadar));
