@@ -1,5 +1,6 @@
 ﻿using Amazon.Runtime.Internal.Endpoints.StandardLibrary;
 using Models;
+using MongoDB.Bson.Serialization.Serializers;
 using Newtonsoft.Json;
 using Repositories;
 using System.Net;
@@ -28,31 +29,27 @@ namespace Services
             }
         }
 
-        public void InsertFileOnSql(string jsonString)
+        public void InsertFileOnSql(string jsonString, int mt)
         {
             var json = JsonConvert.DeserializeObject<RadarList>(jsonString);
-            // Limpa dados antigos da tabela antes de inserir
-            _radarRepository.Delete();
-            foreach (var radar in json.Radar)
+            if (mt == 0)
             {
-                _radarRepository.Insert(radar);
-            }
-        }
-
-        public async Task<bool> InsertFileOnSqlMT(string jsonString)
-        {
-            try
-            {
-                var json = JsonConvert.DeserializeObject<RadarList>(jsonString);
+                // Limpa dados antigos da tabela antes de inserir
                 _radarRepository.Delete();
-                await _radarRepository.InsertAsync(json.Radar);
-                return true;
+                foreach (var radar in json.Radar)
+                {
+                    _radarRepository.Insert(radar);
+                }
             }
-            catch (Exception e)
+            else
             {
-                Console.WriteLine(e);
-                return false;
+                var batch = json.Radar.Count();
+                var runs = 100;
+                int batchsize = (batch / runs);
+                _radarRepository.Delete();
+                _radarRepository.InsertManyMT(json.Radar, runs, batchsize);
             }
+
         }
     }
 }

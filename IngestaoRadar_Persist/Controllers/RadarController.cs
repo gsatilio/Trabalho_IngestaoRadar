@@ -10,13 +10,13 @@ namespace Controllers
     {
         private RadarServices _services = new();
         
-        public bool SaveRadarDataFromApi(string url)
+        public bool SaveRadarDataFromApi(string url, int mt)
         {
             var response = false;
             try
             {
                 var json = _services.GetJsonFromHttp(url);
-                _services.InsertFileOnSql(json);
+                _services.InsertFileOnSql(json, mt);
                 response = true;
             }
             catch (Exception e)
@@ -27,7 +27,7 @@ namespace Controllers
             return response;
         }
      
-        public bool SaveRadarDataFromFile(string path)
+        public bool SaveRadarDataFromFile(string path, int mt)
         {
             var response = false;
             try
@@ -37,33 +37,7 @@ namespace Controllers
                 // Tenta converter o arquivo Json para objeto a fim de verificar sua validade
                 JToken.Parse(json);
 
-                _services.InsertFileOnSql(json);
-                response = true;
-            }
-            catch (JsonReaderException jsonReaderException)
-            {
-                Console.WriteLine("JSON_PARSE_ERROR: " + jsonReaderException.Message);
-                response = false;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("ERROR: " + ex.Message);
-                response = false;
-            }
-            return response;
-        }
-
-        public async Task<bool> SaveRadarDataFromFileMT(string path)
-        {
-            var response = false;
-            try
-            {
-                var reader = new StreamReader(path);
-                var json = reader.ReadToEnd();
-                // Tenta converter o arquivo Json para objeto a fim de verificar sua validade
-                JToken.Parse(json);
-
-                await _services.InsertFileOnSqlMT(json);
+                _services.InsertFileOnSql(json, mt);
                 response = true;
             }
             catch (JsonReaderException jsonReaderException)

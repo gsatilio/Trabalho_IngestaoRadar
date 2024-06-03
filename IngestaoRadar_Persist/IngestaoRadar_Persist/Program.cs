@@ -24,32 +24,31 @@ internal class Program
             Console.WriteLine("Selecione uma opção:");
             Console.WriteLine("[ 1 ] Carregar arquivo via API");
             Console.WriteLine("[ 2 ] Carregar arquivo local");
-            Console.WriteLine("[ 3 ] Carregar arquivo local Multi Thread");
             Console.WriteLine("[ 0 ] Sair");
             option = int.Parse(Console.ReadLine());
+
+            int mt = -1;
+            do
+            {
+                Console.WriteLine("Deseja usar Multi Thread? 0 - Nao e 1 - Sim");
+                mt = int.Parse(Console.ReadLine());
+            } while (mt != 0 && mt != 1);
+
 
             switch (option)
             {
                 case 1:
                     watch.Start();
-                    var apiResponse = controller.SaveRadarDataFromApi(url);
+                    var apiResponse = controller.SaveRadarDataFromApi(url, mt);
                     watch.Stop();
                     Console.WriteLine($"{(apiResponse ? "Operação realizada com sucesso! " + watch.ElapsedMilliseconds + "ms" : "Erro no processamento...")}");
                     watch.Reset();
                     break;
                 case 2:
                     watch.Start();
-                    var fileResponse = controller.SaveRadarDataFromFile(path);
+                    var fileResponse = controller.SaveRadarDataFromFile(path, mt);
                     watch.Stop();
                     Console.WriteLine($"{(fileResponse ? "Operação realizada com sucesso! " + watch.ElapsedMilliseconds + "ms" : "Erro no processamento...")}");
-                    watch.Reset();
-                    break;
-                case 3:
-                    watch.Start();
-                    Chamaaa(controller, path);
-                    watch.Stop();
-                    //Console.WriteLine($"{(fileResponseMT ? "Operação realizada com sucesso! " + watch.ElapsedMilliseconds + "ms" : "Erro no processamento...")}");
-                    Console.WriteLine($"Operação realizada com sucesso! {watch.ElapsedMilliseconds}ms");
                     watch.Reset();
                     break;
                 case 0:
@@ -61,10 +60,5 @@ internal class Program
             }
             Console.ReadKey();
         } while (option > 0);
-
-        static async Task<bool> Chamaaa(RadarController controller, string path)
-        {
-            return await controller.SaveRadarDataFromFileMT(path);
-        }
     }
 }
