@@ -10,13 +10,13 @@ namespace Controllers
     {
         private RadarServices _services = new();
         
-        public bool SaveRadarDataFromApi(string url, int mt)
+        public bool SaveRadarDataFromApi(string url, int mt, int bt)
         {
             var response = false;
             try
             {
                 var json = _services.GetJsonFromHttp(url);
-                _services.InsertFileOnSql(json, mt);
+                _services.InsertFileOnSql(json, mt, bt);
                 response = true;
             }
             catch (Exception e)
@@ -27,7 +27,7 @@ namespace Controllers
             return response;
         }
      
-        public bool SaveRadarDataFromFile(string path, int mt)
+        public bool SaveRadarDataFromFile(string path, int mt, int bt)
         {
             var response = false;
             try
@@ -37,7 +37,7 @@ namespace Controllers
                 // Tenta converter o arquivo Json para objeto a fim de verificar sua validade
                 JToken.Parse(json);
 
-                _services.InsertFileOnSql(json, mt);
+                _services.InsertFileOnSql(json, mt, bt);
                 response = true;
             }
             catch (JsonReaderException jsonReaderException)

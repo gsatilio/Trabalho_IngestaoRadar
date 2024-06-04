@@ -29,10 +29,10 @@ namespace Services
             }
         }
 
-        public void InsertFileOnSql(string jsonString, int mt)
+        public void InsertFileOnSql(string jsonString, int mt, int bt)
         {
             var json = JsonConvert.DeserializeObject<RadarList>(jsonString);
-            if (mt == 0)
+            if (bt == 0)
             {
                 // Limpa dados antigos da tabela antes de inserir
                 _radarRepository.Delete();
@@ -47,7 +47,7 @@ namespace Services
                 var runs = 100;
                 int batchsize = (batch / runs);
                 _radarRepository.Delete();
-                _radarRepository.InsertManyMT(json.Radar, runs, batchsize);
+                _radarRepository.InsertBatch(json.Radar, runs, batchsize, mt);
             }
 
         }

@@ -136,5 +136,14 @@ namespace Models
                       $"{VelocidadeLeve}";
             return result;
         }
+
+        public string? GetSQLInsertValue()
+        {
+            var arrayData = string.Empty;
+            DataDaInativacao.ForEach(s => arrayData += s + ",");
+            return $"('{this.Concessionaria}', {this.AnoDoPnvSnv}, '{this.TipoDeRadar}', '{this.Rodovia}', '{this.Uf}', '{this.KmM}'," +
+                              $"'{this.Municipio}', '{this.TipoPista}','{this.Sentido}','{this.Situacao}','{arrayData}'," +
+                              $"'{this.Latitude}', '{this.Longitude}', {this.VelocidadeLeve}),";
+        }
     }
 }

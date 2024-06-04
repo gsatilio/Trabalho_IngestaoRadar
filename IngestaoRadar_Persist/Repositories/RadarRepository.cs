@@ -65,7 +65,7 @@ namespace Repositories
             return result;
         }
 
-        public bool InsertManyMT(List<Radar> lst, int runs, int batchsize)
+        public bool InsertBatch(List<Radar> lst, int runs, int batchsize, int mt)
         {
             var result = false;
             try
@@ -78,29 +78,30 @@ namespace Repositories
                     var tc = "INSERT INTO RadarData VALUES";
                     foreach (var radar in lst.Skip(runs * i).Take(runs))
                     {
-                        var datesCsv = string.Empty;
-                        if (radar.DataDaInativacao.Count > 0)
-                        {
-                            radar.DataDaInativacao.ForEach(s => datesCsv += s + ",");
-                        }
-                        tc += $"('{radar.Concessionaria}', {radar.AnoDoPnvSnv}, '{radar.TipoDeRadar}', '{radar.Rodovia}', '{radar.Uf}', '{radar.KmM}'," +
-                              $"'{radar.Municipio}', '{radar.TipoPista}','{radar.Sentido}','{radar.Situacao}','{datesCsv}'," +
-                              $"'{radar.Latitude}', '{radar.Longitude}', {radar.VelocidadeLeve}),";
+                        tc += radar.GetSQLInsertValue();
                     }
                     tc = tc.Substring(0, tc.Length - 1);
                     Tuple<string, int> tupla = new Tuple<string, int>(tc, i);
                     listInsert.Add(tupla);
                 }
 
-                // crio dois threads, cada um executa a mesma funcao, mas um com parametro de Pares e outro de Impares
-                Thread T1 = new Thread(() => StartInsert(listInsert, 0));
-                Thread T2 = new Thread(() => StartInsert(listInsert, 1));
+                if(mt == 1)
+                {
+                    // crio dois threads, cada um executa a mesma funcao, mas um com parametro de Pares e outro de Impares
+                    Thread T1 = new Thread(() => StartInsert(listInsert, 0));
+                    Thread T2 = new Thread(() => StartInsert(listInsert, 1));
+                    // starto os dois threads e aguardo eles terminarem
+                    T1.Start();
+                    T2.Start();
+                    T1.Join();
+                    T2.Join();
+                } else
+                {
+                    StartInsert(listInsert, 2);
+                }
+                
 
-                // starto os dois threads e aguardo eles terminarem
-                T1.Start();
-                T2.Start();
-                T1.Join();
-                T2.Join();
+                
 
                 void StartInsert(List<Tuple<string, int>> listInsert, double tipo)
                 {
@@ -120,11 +121,19 @@ namespace Repositories
                             cmd.ExecuteNonQuery();
                         }
                     }
-                    else // tupla IMPAR
+                    else if (tipo == 1) // tupla IMPAR
                     {
                         foreach (var itm in listInsert.Where(n => n.Item2 % 2 != 0))
                         {
 
+                            cmd.CommandText = itm.Item1;
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                    else
+                    {
+                        foreach (var itm in listInsert)
+                        {
                             cmd.CommandText = itm.Item1;
                             cmd.ExecuteNonQuery();
                         }
